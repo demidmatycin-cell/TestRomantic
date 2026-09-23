@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для моей кисы 💌</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        .screen { display: none; animation: fadeIn 0.8s; }
+        .screen.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Общие стили кнопок и инпутов */
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            text-align: center;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.9);
+            outline: none;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #ff6b9d;
+            color: white;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .btn:hover { transform: scale(1.03); box-shadow: 0 5px 15px rgba(255,107,157,0.4); }
+        .btn-option {
+            background: rgba(255,255,255,0.9);
+            color: #764ba2;
+            margin-bottom: 12px;
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 15px;
+        }
+        .btn-option:hover { background: #fff; transform: translateX(5px); }
+
+        /* Экраны */
+        .text-center { text-align: center; color: white; }
+        .title { font-size: 1.8em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .subtitle { font-style: italic; margin-bottom: 30px; opacity: 0.9; font-size: 1.1em; }
+        .error-msg { color: #ffcccc; margin-top: 10px; display: none; }
+
+        /* Конверт */
+        .envelope {
+            width: 280px; height: 180px;
+            background: #f4e4c1;
+            margin: 30px auto;
+            position: relative;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .envelope:hover { transform: translateY(-5px); }
+        .envelope::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 140px solid transparent; border-right: 140px solid transparent;
+            border-top: 90px solid #e8d4b0;
+            transform-origin: top; transition: all 0.5s; z-index: 2;
+        }
+        .envelope.open::before { transform: rotateX(180deg); }
+        .envelope-seal {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px; height: 50px; background: #ff6b9d;
+            border-radius: 50%; z-index: 3;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+        }
+        .envelope-name {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%); font-size: 24px; color: #764ba2; z-index: 1;
+        }
+        .open-text { margin-top: 20px; font-size: 18px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        /* Письмо */
+        .letter {
+            background: #fffef0; padding: 30px 25px; border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2); line-height: 1.8;
+            max-height: 80vh; overflow-y: auto;
+        }
+        .letter-header { color: #ff6b9d; font-size: 1.3em; margin-bottom: 20px; font-style: italic; }
+        .letter-text { font-size: 15px; text-align: justify; margin-bottom: 20px; }
+        .letter-photo-container {
+            margin: 25px 0; text-align: center; background: white;
+            padding: 10px; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            transform: rotate(-1deg);
+        }
+        .letter-photo { width: 100%; max-height: 350px; object-fit: cover; border-radius: 5px; }
+        .photo-caption { margin-top: 10px; font-style: italic; color: #764ba2; font-size: 14px; }
+
+        /* Викторина */
+        .quiz-container {
+            background: rgba(255,255,255,0.95); padding: 25px; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .quiz-question { font-size: 1.2em; color: #764ba2; margin-bottom: 20px; text-align: center; font-weight: bold; }
+        .quiz-progress { text-align: center; color: #ff6b9d; margin-bottom: 15px; font-size: 14px; }
+        
+        /* Результаты */
+        .result-box {
+            background: white; padding: 30px; border-radius: 15px; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .result-title { font-size: 2em; color: #ff6b9d; margin-bottom: 20px; }
+        .result-stat { font-size: 1.3em; margin: 15px 0; color: #333; }
+        .cat-sticker { font-size: 60px; margin: 20px 0; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* Фон с сердечками и котиками */
+        .bg-elements {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; overflow: hidden; z-index: 1;
+        }
+        .floating {
+            position: absolute; font-size: 24px; animation: floatUp 12s infinite linear; opacity: 0.7;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-elements" id="bgElements"></div>
+
+    <div class="container">
+        <!-- Экран 1: Имя -->
+        <div class="screen text-center active" id="screen1">
+            <div class="cat-sticker">🐱</div>
+            <h1 class="title">Привет, киса!</h1>
+            <p class="subtitle">Как тебя зовут?</p>
+            <input type="text" class="input-field" id="nameInput" placeholder="Введи своё имя">
+            <button class="btn" onclick="saveName()">Дальше 💕</button>
+        </div>
+
+        <!-- Экран 2: Пароль -->
+        <div class="screen text-center" id="screen2">
+            <div class="cat-sticker">😽</div>
+            <h1 class="title">Эта эмоция закрыта словом</h1>
+            <p class="subtitle">где мы познакомились?</p>
+            <input type="text" class="input-field" id="passwordInput" placeholder="введите слово">
+            <button class="btn" onclick="checkPassword()">Открыть</button>
+            <p class="error-msg" id="errorMsg">Неверный пароль 😿</p>
+        </div>
+
+        <!-- Экран 3: Конверт -->
+        <div class="screen text-center" id="screen3">
+            <h2 style="color: white; margin-bottom: 10px;" id="greetingName">Алина,</h2>
+            <p style="color: white; margin-bottom: 30px;">тебе письмо 💌</p>
+            <div class="envelope" id="envelope" onclick="openEnvelope()">
+                <div class="envelope-seal">💌</div>
+                <div class="envelope-name" id="envelopeName">Алина</div>
+            </div>
+            <p class="open-text">открой, это тебе 🐾</p>
+        </div>
+
+        <!-- Экран 4: Письмо -->
+        <div class="screen" id="screen4">
+            <div class="letter">
+                <div class="letter-header">это тебе, <span id="letterName">Алина</span></div>
+                <div class="letter-text">
+                    Алина, дорогая моя, любимая девочка, я очень сильно люблю тебя! Ты самая лучшая на свете, ты моё всё: моё настроение и моё счастье. Ты моя киса. Без тебя моя жизнь превратится в ад и сущую пустоту, поэтому я надеюсь, что мы останемся вместе навсегда. Ведь я полюбил тебя так, как никогда в жизни никого не любил. Ты самый дорогой мне человек. Я очень хочу вскоре увидеть нас у свадебного алтаря и мечтаю, чтобы мы жили вместе. Хочу, чтобы всё было так, как мы захотим, и я буду очень стараться ради этого.<br><br>
+                    Да, я не идеальный парень. Да, я, бывает, туплю, бешу тебя, ругаюсь или злюсь, но это совсем не со зла. Я просто безумно люблю тебя. Прости, если где-то обидел, задел или расстроил — я просто очень переживаю за тебя.<br><br>
+                    Спасибо тебе, моя маленькая, за то, что ты у меня есть. Ты наполнила мою жизнь красками и радостью. Раньше у меня на душе была пустота, но сейчас я по-настоящему рад и счастлив. Хочу повторить ещё раз: я очень сильно люблю тебя, моя маленькая киса!
+                </div>
+                <div class="letter-photo-container">
+                    <img src="https://lfdrive.ru/f/xeebXpnV.jpg" alt="Наше фото" class="letter-photo">
+                    <div class="photo-caption">моя киса)</div>
+                </div>
+            </div>
+            <button class="btn" onclick="startQuiz()">Начать викторину 🐱</button>
+        </div>
+
+        <!-- Экран 5: Викторина -->
+        <div class="screen" id="screen5">
+            <div class="quiz-container">
+                <div class="quiz-progress" id="quizProgress">Вопрос 1 из 18</div>
+                <div class="quiz-question" id="quizQuestion">Текст вопроса</div>
+                <div id="quizOptions"></div>
+            </div>
+        </div>
+
+        <!-- Экран 6: Результаты -->
+        <div class="screen text-center" id="screen6">
+            <div class="result-box">
+                <div class="cat-sticker">😻</div>
+                <div class="result-title">Викторина пройдена!</div>
+                <div class="result-stat" id="resultWishes">💝 Твои желания: 0</div>
+                <div class="result-stat" id="resultKisses">😽 Ты должна поцелуев: 0</div>
+                <p style="margin-top: 20px; color: #764ba2; font-style: italic;">Я всё вижу, киса... 😏</p>
+                <button class="btn" onclick="location.reload()">Пройти ещё раз 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Конфигурация Telegram
+        const TELEGRAM_BOT_TOKEN = '8896892259:AAH6ug_reTRIsnwg0_SacJED89huHmk8qtc';
+        const TELEGRAM_CHAT_ID = '5715042754';
+        const CORRECT_PASSWORD = 'тикток';
+
+        let userName = '';
+        let currentQuestion = 0;
+        let wishes = 0;
+        let kisses = 0;
+        let answersLog = [];
+
+        // Вопросы
+        const questions = [
+            { q: "Какого числа мы начали встречаться?", options: ["1 июля", "10 июля", "5 июля", "8 июля"], correct: 3 },
+            { q: "Какие у меня глаза?", options: ["Карие", "Зеленые", "Зелено-серые", "Зелено-голубые"], correct: 2 },
+            { q: "Какое первое наше любимое место было?", options: ["Лес", "Подъезд", "Набережная", "КФС"], correct: 1 },
+            { q: "В каких штанах я был на 1 нашей прогулке?", options: ["Серых", "Синих", "Черных", "Темно-синих"], correct: 0 },
+            { q: "После чего мы стали встречаться?", options: ["После поцелуя", "После балкона в доме", "После 2 прогулки", "После того как я предложил"], correct: 0 },
+            { q: "Из-за чего состоялся наш 1 поцелуй?", options: ["Из-за обещания", "Из-за спора", "Просто так", "Была просьба"], correct: 0 },
+            { q: "Какой фильм мы впервые вместе посмотрели?", options: ["История игрушек 5", "Город Zомби", "Поезд в Пусан", "Два три демон приди"], correct: 0 },
+            { q: "Какую жвачку я люблю?", options: ["Ментос виноград", "Ментос вишня", "Ментос арбуз", "Дирол дыня арбуз"], correct: 0 },
+            { q: "Какой жанр фильма я люблю больше всего?", options: ["Ужастики", "Боевики", "Старые мультики", "Драму"], correct: 2 },
+            { q: "Что я обожаю больше всего?)", options: ["Поцелуй", "Попи", "🍒", "Обниматься"], correct: -1 }, // Все верны
+            { q: "В какое место мы пошли гулять на 1 нашей встрече?", options: ["Лес дальше глобуса", "Подъезд", "Лес где разрушенный мост", "Озеро около станции"], correct: 0 },
+            { q: "Какое было наше 1 свидание, какое число?", options: ["8 июля", "10 июля", "9 июля", "13 июля"], correct: 0 },
+            { q: "Какое повышение я хочу (после резинки)?", options: ["Резинку от лифчика", "2 резинки черных", "Футболку с поцелуями", "Что-то еще"], correct: 0 },
+            { q: "Что мне нравится в тебе больше всего?", options: ["Твой характер", "Твоя внешность", "Твоя фигура", "Все выше перечисленное"], correct: 3 },
+            { q: "Когда я узнал твое настоящее имя Алина?", options: ["3 прогулка", "4 прогулка", "5 прогулка", "6 прогулка"], correct: 1 },
+            { q: "Как я называл тебя до того как Киса?", options: ["Солнышко или Ариша", "Зайчик, солнышко или Ариша", "Ариша", "Любимая"], correct: 1 },
+            { q: "Кого я больше всех на свете люблю?", options: ["Тебя", "Мою кису", "Мою девочку", "Все выше перечисленное"], correct: 3 },
+            { q: "Кого я хочу видеть каждый день рядом с собой?", options: ["Тебя", "Тебя", "Тебя", "Тебя"], correct: -1 } // Все верны
+        ];
+
+        // Фоновые элементы
+        function createBgElements() {
+            const container = document.getElementById('bgElements');
+            const emojis = ['💕', '🐱', '💖', '🐾', '💗', '😽', '💝', '‍⬛'];
+            for (let i = 0; i < 25; i++) {
+                const el = document.createElement('div');
+                el.className = 'floating';
+                el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                el.style.left = Math.random() * 100 + '%';
+                el.style.animationDelay = Math.random() * 12 + 's';
+                el.style.animationDuration = (Math.random() * 8 + 10) + 's';
+                el.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                container.appendChild(el);
+            }
+        }
+
+        function showScreen(num) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('screen' + num).classList.add('active');
+        }
+
+        function saveName() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (name) {
+                userName = name;
+                document.getElementById('greetingName').textContent = userName + ',';
+                document.getElementById('envelopeName').textContent = userName;
+                document.getElementById('letterName').textContent = userName;
+                showScreen(2);
+            } else {
+                alert('Пожалуйста, введи своё имя! 🐱');
+            }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value.toLowerCase().trim();
+            if (input === CORRECT_PASSWORD) {
+                showScreen(3);
+            } else {
+                document.getElementById('errorMsg').style.display = 'block';
+                setTimeout(() => document.getElementById('errorMsg').style.display = 'none', 2000);
+            }
+        }
+
+        function openEnvelope() {
+            document.getElementById('envelope').classList.add('open');
+            setTimeout(() => showScreen(4), 600);
+        }
+
+        function startQuiz() {
+            currentQuestion = 0;
+            wishes = 0;
+            kisses = 0;
+            answersLog = [];
+            showScreen(5);
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('quizProgress').textContent = `Вопрос ${currentQuestion + 1} из ${questions.length} 🐾`;
+            document.getElementById('quizQuestion').textContent = q.q;
+            
+            const optionsDiv = document.getElementById('quizOptions');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn btn-option';
+                btn.textContent = opt;
+                btn.onclick = () => handleAnswer(index);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex) {
+            const q = questions[currentQuestion];
+            const isCorrect = q.correct === -1 || q.correct === selectedIndex;
+            
+            if (isCorrect) {
+                wishes++;
+                answersLog.push(`✅ ${q.q} - Верно`);
+                alert('Правильно! +1 желание 💝');
+            } else {
+                kisses++;
+                answersLog.push(` ${q.q} - Неверно (нужен поцелуй 😽)`);
+                alert('Неправильно! Ты должна 1 поцелуй 😽');
+            }
+            
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                renderQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('resultWishes').textContent = `💝 Твои желания: ${wishes}`;
+            document.getElementById('resultKisses').textContent = `😽 Ты должна поцелуев: ${kisses}`;
+            showScreen(6);
+            sendToTelegram();
+        }
+
+        function sendToTelegram() {
+            const text = `
+💌 *Новая викторина пройдена!*
+ *Имя:* ${userName}
+ *Заработано желаний:* ${wishes}
+😽 *Должна поцелуев:* ${kisses}
+
+📝 *Ответы:*
+${answersLog.join('\n')}
+            `;
+            
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    text: text,
+                    parse_mode: 'Markdown'
+                })
+            }).then(response => {
+                if (response.ok) console.log('Результат отправлен в Telegram!');
+            }).catch(err => console.error('Ошибка отправки:', err));
+        }
+
+        // Инициализация
+        window.onload = function() {
+            createBgElements();
+            document.getElementById('nameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveName();
+            });
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') checkPassword();
+            });
+        };
+    </script>
+</body>
+</html>
